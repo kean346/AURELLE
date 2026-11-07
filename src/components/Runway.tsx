@@ -27,6 +27,7 @@ export default function Runway({
     const cards = Array.from(
       rail.querySelectorAll<HTMLElement>(".product-card"),
     );
+    let rowH = 38;
     let W = 0,
       H = 0,
       base = 0,
@@ -60,6 +61,7 @@ export default function Runway({
       });
       cardS = side ? 160 : rail.clientHeight / 3;
       cards.forEach((c) => (c.style.height = side ? "100%" : cardS + "px"));
+      rowH = roll.firstElementChild!.getBoundingClientRect().height;
       dirty = true;
     }
     function paint() {
@@ -102,7 +104,7 @@ export default function Runway({
           y < (side ? rail.clientWidth : rail.clientHeight) - cardS * 0.5;
         c.inert = !visible;
       });
-      roll.style.transform = `translate3d(0,${(-wrap(p, 6) * roll.firstElementChild!.getBoundingClientRect().height).toFixed(1)}px,0)`;
+      roll.style.transform = `translate3d(0,${(-wrap(p, 6) * rowH).toFixed(1)}px,0)`;
       el.dataset.position = p.toFixed(4);
       el.dataset.target = String(target);
       el.dataset.active = String(wrap(Math.round(p), 6));
@@ -165,6 +167,8 @@ export default function Runway({
     function release(e: PointerEvent) {
       if (!down) return;
       down = false;
+      if (stage.hasPointerCapture(e.pointerId))
+        stage.releasePointerCapture(e.pointerId);
       ring.classList.remove("drag");
       if (e.type === "pointercancel") {
         target = Math.round(target);
@@ -187,6 +191,7 @@ export default function Runway({
     stage.addEventListener(
       "wheel",
       (e) => {
+        if (!stage.contains(document.activeElement) || e.ctrlKey) return;
         e.preventDefault();
         target += clamp(e.deltaY + e.deltaX, -120, 120) / 420;
         clearTimeout(wheelT);
@@ -199,6 +204,10 @@ export default function Runway({
     stage.addEventListener(
       "keydown",
       (e) => {
+        if (e.key === "Escape") {
+          stage.blur();
+          return;
+        }
         if ((e.target as HTMLElement).closest("a,button")) return;
         if (["ArrowRight", "ArrowDown"].includes(e.key)) {
           e.preventDefault();
@@ -254,7 +263,7 @@ export default function Runway({
           className="runway-stage"
           tabIndex={0}
           role="region"
-          aria-label="Product runway. Drag, wheel or use arrow keys to explore. Tab to exit."
+          aria-label="Product runway. Drag or focus to use wheel and arrow keys. Escape or Tab exits."
         >
           <div className="runway-intro">
             <span className="eyebrow">Objects of intention</span>
@@ -306,7 +315,16 @@ export default function Runway({
                 →
               </button>
             </div>
-            <a href="#ritual" className="exit-runway">
+            <a
+              href="#ritual"
+              className="exit-runway"
+              onPointerUp={(e) => {
+                if (e.pointerType === "touch") {
+                  e.preventDefault();
+                  e.currentTarget.click();
+                }
+              }}
+            >
               Continue the ritual ↓
             </a>
           </div>

@@ -1,30 +1,30 @@
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
   args: ["--no-sandbox"],
 });
 const base = process.env.TEST_BASE_URL || "http://localhost:5173";
 try {
-  const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-    isMobile: true,
-    hasTouch: true,
-  });
-  const page = await context.newPage();
-  await page.goto(base);
-  await page.evaluate(() =>
+  const ctx = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+    }),
+    p = await ctx.newPage();
+  await p.goto(base);
+  await p.evaluate(() => document.fonts.ready);
+  await p.evaluate(() =>
     window.scrollTo({
       top: document.getElementById("collection").offsetTop,
       behavior: "instant",
     }),
   );
-  await page.waitForTimeout(300);
-  const box = await page.locator(".runway-stage").boundingBox();
-  const session = await context.newCDPSession(page);
-  const x = box.x + 60,
-    y = Math.min(450, box.y + box.height * 0.6);
+  await p.waitForTimeout(650);
+  const r = await p.locator(".runway-stage").boundingBox(),
+    session = await ctx.newCDPSession(p),
+    x = r.x + 50,
+    y = Math.min(420, r.y + r.height * 0.6);
   await session.send("Input.dispatchTouchEvent", {
     type: "touchStart",
     touchPoints: [{ x, y }],
@@ -38,90 +38,72 @@ try {
     type: "touchEnd",
     touchPoints: [],
   });
-  await page.waitForFunction(
+  await p.waitForFunction(
     () => document.querySelector(".runway").dataset.active === "1",
   );
-  assert.equal(
-    await page.evaluate(
+  await p.locator(".exit-runway").tap();
+  await p.waitForFunction(() => location.hash === "#ritual");
+  await p.locator(".ritual-card button").first().tap();
+  await p.getByRole("dialog").waitFor();
+  await p.getByRole("button", { name: "Close dialog", exact: true }).tap();
+  assert.ok(
+    await p.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth + 1,
     ),
-    true,
-  );
-  await page.locator(".exit-runway").tap();
-  await page.waitForFunction(() => location.hash === "#ritual");
-  console.log("PASS real mobile touch drag, touch exit link, no page overflow");
-  await context.close();
-  const p = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-  await p.addInitScript(() =>
-    Object.defineProperty(window, "Worker", { value: undefined }),
-  );
-  const manifest = JSON.parse(readFileSync("public/media/manifest.json"));
-  manifest.story.src = "/fallback-film.mp4";
-  manifest.story.strategy = "frames";
-  await p.route("**/media/manifest.json", (r) => r.fulfill({ json: manifest }));
-  await p.route("**/fallback-film.mp4", async (route) => {
-    const body = readFileSync("artifacts/test-single-gop.mp4"),
-      range = route.request().headers().range;
-    const match = range?.match(/bytes=(\d+)-(\d*)/);
-    if (match) {
-      const start = Number(match[1]),
-        end = match[2] ? Number(match[2]) : body.length - 1;
-      return route.fulfill({
-        status: 206,
-        body: body.subarray(start, end + 1),
-        contentType: "video/mp4",
-        headers: {
-          "Content-Range": `bytes ${start}-${end}/${body.length}`,
-          "Accept-Ranges": "bytes",
-        },
-      });
-    }
-    return route.fulfill({ body, contentType: "video/mp4" });
-  });
-  await p.goto(base);
-  await p.evaluate(() => {
-    const el = document.getElementById("story");
-    window.scrollTo({
-      top: el.offsetTop + (el.offsetHeight - innerHeight) * 0.5,
-      behavior: "instant",
-    });
-  });
-  await p.waitForFunction(
-    () =>
-      document.querySelector(".frame-film canvas")?.dataset.ready === "true",
-    null,
-    { timeout: 30000 },
-  );
-  assert.equal(
-    await p.locator(".frame-film canvas").getAttribute("data-pipeline"),
-    "capture",
   );
   console.log(
-    "PASS missing Worker: sequential native frame capture fallback, canvas ready",
+    "PASS mobile touch: drag, runway exit, interactive card tap and close, no overflow",
   );
-  await p.evaluate(() =>
+  await ctx.close();
+  const q = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await q.goto(base);
+  await q.evaluate(() =>
     window.scrollTo({
       top: document.getElementById("signature").offsetTop,
       behavior: "instant",
     }),
   );
-  await p.waitForFunction(
+  await q.waitForFunction(
     () =>
       document.querySelector(".signature .product-world")?.dataset.rendered ===
       "true",
   );
-  await p
+  await q
     .locator(".signature canvas")
     .evaluate((c) =>
       c.dispatchEvent(new Event("webglcontextlost", { cancelable: true })),
     );
-  await p.locator(".signature .webgl-fallback").waitFor({ state: "visible" });
+  await q.locator(".webgl-fallback").waitFor({ state: "visible" });
   assert.match(
-    await p.locator(".signature .webgl-fallback").innerText(),
-    /3D view unavailable/,
+    await q.locator(".webgl-fallback").innerText(),
+    /Studio render shown/,
   );
-  console.log("PASS WebGL context-loss fallback visible and honestly labeled");
-  await p.close();
+  console.log(
+    "PASS WebGL context-loss: high-resolution studio-render fallback",
+  );
+  await q.close();
+  const f = await browser.newPage();
+  await f.route("**/hero-portrait.mp4", (r) => r.abort());
+  await f.goto(base);
+  await f.waitForTimeout(500);
+  await f.waitForFunction(() => !document.querySelector(".hero-video"));
+  assert.equal(
+    await f
+      .locator(".hero-poster")
+      .evaluate((i) => i.complete && i.naturalWidth > 0),
+    true,
+  );
+  assert.equal(
+    await f
+      .locator(".hero")
+      .getByText(/pending|missing|DEV/i)
+      .count(),
+    0,
+  );
+  console.log(
+    "PASS video-error fallback: visible poster, no missing-asset notice in product UI",
+  );
+  await f.close();
 } finally {
   await browser.close();
 }

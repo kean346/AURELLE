@@ -6,3 +6,5 @@ import "@fontsource/cormorant-garamond/latin-400-italic.css";
 import App from "./App";
 import "./style.css";
 createRoot(document.getElementById("root")!).render(<App />);
+
+import "./revision.css";

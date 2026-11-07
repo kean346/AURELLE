@@ -1,0 +1,8 @@
+Replacement portrait motion source:
+KwaiVGI/LivePortrait, assets/examples/source/s20.mp4
+Repository: https://github.com/KwaiVGI/LivePortrait
+Pinned upstream revision: 9b294b3d0536135442ea73cb01e6cb3ca7029dd3
+Repository distribution license: MIT; included in LIVEPORTRAIT-LICENSE.txt.
+This is an upstream example, not the user's original animation or an AURELLE campaign commission. No model endorsement is claimed. Upstream does not provide a separate model-release document.
+Local derivative: audio removed, restrained color grade, H.264 with 6-frame keyframes and fast-start metadata for reversible seeking.
+Native picture: 480 x 908. Do not claim HD or true 3D human imagery.

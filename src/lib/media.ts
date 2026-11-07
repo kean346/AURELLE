@@ -7,7 +7,10 @@ export interface MediaManifest {
   final: { src: string | null };
 }
 export const fallbackManifest: MediaManifest = {
-  hero: { src: null, poster: "/media/hero-woman-poster.webp" },
+  hero: {
+    src: "/media/hero-portrait.mp4",
+    poster: "/media/hero-portrait-poster.webp",
+  },
   story: { src: null, strategy: "seek", fps: 24 },
   campaign: { src: null },
   liquid: { src: null },

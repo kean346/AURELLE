@@ -1,18 +1,10 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import Hero from "./components/Hero";
-import Story from "./components/Story";
+import ClosingCards from "./components/ClosingCards";
 import Runway from "./components/Runway";
-import {
-  Signature,
-  Ingredients,
-  Ritual,
-  Campaign,
-  Philosophy,
-} from "./components/Editorial";
+import { Signature, Ingredients } from "./components/Editorial";
 import { Bag, Contact, Dialog } from "./components/Dialogs";
 import { products, money } from "./lib/products";
-import { useMedia } from "./lib/media";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 const Studio = lazy(() => import("./Studio"));
 function read<T>(key: string, fallback: T): T {
   try {
@@ -22,7 +14,6 @@ function read<T>(key: string, fallback: T): T {
   }
 }
 export default function App() {
-  const media = useMedia();
   const [bag, setBag] = useState<number[]>(() => {
     const v = read<unknown>("aurelle-bag", []);
     return Array.from({ length: 6 }, (_, i) =>
@@ -79,15 +70,13 @@ export default function App() {
     };
     scroll();
     addEventListener("scroll", scroll, { passive: true });
-    const refresh = () => ScrollTrigger.refresh();
-    document.fonts.ready.then(refresh);
     return () => removeEventListener("scroll", scroll);
   }, []);
   const nav = [
     ["Collection", "collection"],
     ["The ritual", "ritual"],
-    ["Our world", "philosophy"],
-    ["Journal", "journal"],
+    ["The studio", "ingredients"],
+    ["Contact", "footer"],
   ];
   if (location.search.includes("studio") && import.meta.env.DEV)
     return (
@@ -151,23 +140,7 @@ export default function App() {
         </Dialog>
       )}
       <main>
-        <div className="cinematic-stage">
-          <Hero />
-          <Story />
-        </div>
-        <section className="intro-line">
-          <span className="asterisk">✳︎</span>
-          <p>
-            Skincare is personal.
-            <br />
-            <em>Let’s keep it that way.</em>
-          </p>
-          <span>
-            A considered collection.
-            <br />
-            An uncomplicated approach.
-          </span>
-        </section>
+        <Hero />
         <Signature add={add} />
         <Runway
           add={add}
@@ -175,41 +148,9 @@ export default function App() {
           toggleFavorite={toggleFavorite}
         />
         <Ingredients />
-        <Ritual />
-        <Campaign />
-        <Philosophy />
-        <section className="finale">
-          {media.final.src && (
-            <video
-              src={media.final.src}
-              muted
-              playsInline
-              autoPlay
-              loop
-              aria-label="Closing campaign film"
-            />
-          )}
-          <img
-            src="/media/campaign-still-life.webp"
-            alt="Amber serum and warm stone in afternoon light"
-            loading="lazy"
-          />
-          <div className="finale-shade" />
-          <div className="finale-copy">
-            <span className="eyebrow">A little time. All yours.</span>
-            <h2>
-              Come back
-              <br />
-              <em>to yourself.</em>
-            </h2>
-            <a className="pill" href="#collection">
-              Find your essential <span>↗</span>
-            </a>
-          </div>
-          <span className="finale-caption">AURELLE — THE ART OF BEING.</span>
-        </section>
+        <ClosingCards add={add} />
       </main>
-      <footer>
+      <footer id="footer">
         <div className="footer-top">
           <div>
             <span className="eyebrow">A note from our world</span>
@@ -257,7 +198,7 @@ export default function App() {
               <span className="eyebrow">Explore</span>
               <a href="#collection">The collection</a>
               <a href="#ritual">Your ritual</a>
-              <a href="#philosophy">Our philosophy</a>
+              <a href="#ingredients">The studio</a>
             </div>
             <div>
               <span className="eyebrow">Connect</span>

@@ -1,10 +1,10 @@
-# AURELLE
+# AURELLE — Skin Studio
 
-A luxury skincare concept built in React 19, TypeScript and Vite. Warm editorial photography, a reversible pinned 3D story, an original interactive Three.js serum, and the supplied Maison Vell depth choreography adapted to skincare.
+A dark olive and charcoal skincare concept in React, TypeScript and Vite. The current design has a real self-hosted portrait film, an interactive 3D serum/dropper scene, the original Maison Vell depth-runway controller, a golden-serum macro image and three touch-responsive closing cards.
 
-## Run
+## Development
 
-Node 22+ (validated on 24.22.1) and npm 11:
+Node 22+ (validated on 24.22.1), npm 10+:
 
 ```sh
 cd /workspace/AURELLE
@@ -12,31 +12,29 @@ npm ci --cache /workspace/.npm
 npm run dev
 ```
 
-Use the existing checkout. Cloud tasks are already isolated; do not create a worktree unless explicitly requested. No environment secrets or backend services are needed. Install uses the npm registry and the checked-in lockfile. Fonts and imagery are self-hosted. In this cloud machine use `--cache /workspace/.npm`: the default home-directory npm cache is unavailable.
+Cloud tasks are already isolated. Use the existing checkout; do not create a worktree unless explicitly requested. The workspace cache avoids the unavailable default home-directory npm cache. Fonts, imagery and the portrait video are self-hosted; no credentials or backend services are required.
 
 ```sh
 npm run build
 npm test
+npm run format:check
 npm run test:browser
 ```
 
-The browser checks expect a running Vite server and Chromium at `/usr/bin/chromium` (override `CHROMIUM_PATH` or `TEST_BASE_URL`). Prepare the deterministic video fixtures with `npm run test:fixtures` first. They remain under ignored `artifacts/`; they never ship with the site. Screenshots are saved in that directory.
+Browser checks require a running Vite dev or preview server and Chromium. Defaults: `/usr/bin/chromium`, development port 5173. Set `CHROMIUM_PATH` or `TEST_BASE_URL` if needed. Checks exercise the actual delivered portrait video, rather than substituting a test pattern. Screenshots are written under ignored `artifacts/`.
 
-## Reference implementations
+## Interaction and imagery
 
-- **Maison Vell:** `src/components/Runway.tsx`. Original KX/KF/KH/KB/KO arrays, p/target state, linear depth interpolation, inverse-scale blur, transform-only sprite sizing, dt≤50 ms exponential easing `.0072`, direct drag `/max(150,W*.2)`, 150 ms wheel snap, click focus, cursor `.32`, number wrap, and 12-card rail at `p*2`. Keyboard listeners are scoped to the stage so page navigation remains usable. Tab or the explicit continuation link exits. Original generated cutouts replace reference fashion sprites.
-- **Mainframe:** `src/components/Hero.tsx` and `src/lib/media.ts`. Relative pointer delta `.8*duration/viewportWidth`, clamped latest-target seek queue, no autoplay, responsive nav, intro/typewriter timings, accessible range scrubber. Disabled for reduced motion and ignored over UI controls/outside the hero. **The required portrait film is not supplied.** The generated poster remains static and labeled.
-- **Novu:** `src/components/Story.tsx`, `FrameFilm.tsx`, `src/lib/frame-worker.ts`. Sticky shared story viewport, one GSAP ScrollTrigger progress source, 85% film completion, reverse seeking or worker MP4Box/WebCodecs decode, bounded JPEG/bitmap cache, adjacent-frame blend, first-frame gate, cover-to-height framing, edge-color feathering and nearest-frame fallback. A half-speed native capture pass supports browsers without WebCodecs/Worker. Original live 3D product/glass camera orbit is the default until an approved hand-wipe film exists. Native scroll is used consistently; no second smooth-scroll engine.
-- **Three.js:** `src/lib/productScene.ts`, `src/components/ProductWorld.tsx`. Original mesh geometry, PBR materials, lighting/environment, original label textures, OrbitControls and keyboard-accessible rotation/reset. Lazy initialization near viewport, renders only when progress/camera/size changes, disposal on unmount. The runway is a projection of rendered sprites, not live 3D.
+- **Portrait:** `Hero.tsx` plays a local muted MP4, pauses on mouse scrubbing, supports forward/reverse time seeking through a single in-flight queue, and offers play/pause and an accessible range input. Reduced motion uses the poster. The replacement footage is not the original inline GIF or a commissioned AURELLE film; provenance and its 480×908 native resolution are documented in `public/media/credits/`.
+- **Product 3D:** `productScene.ts` builds original lathed packaging, glass/foil materials, engraved collars and studio reflections. `ProductWorld.tsx` adds an animated pipette and three falling serum droplets, orbit controls, arrow rotation and reset. Droplets are animated geometry, not a fluid simulation.
+- **Runway:** original KX/KF/KH/KB/KO depth tables, `.0072` spring, 50 ms time cap, `/max(150,W*.2)` drag, 150 ms wheel snap, infinite wrapping and synchronized 12-card rail remain. Wheel capture now requires focus, and Escape releases it; ordinary page scrolling works over the unfocused showcase. Rolling-number height is cached instead of reading layout every frame.
+- **Cards:** pointer-follow tilt, reveal, hover lift and touch press. Activating a card opens an accessible detail dialog with a working local bag action.
+- **Color and layout:** `revision.css` unifies the charcoal/olive palette. The previous long pinned story, old journal, philosophy and final campaign sections were removed from the active page.
 
-`npm run render:products` rebuilds the transparent cutouts using the development-only `?studio` route. Requires Pillow for alpha trimming; the current files are already included. Product bounding ratios intentionally adapt packaging silhouettes while preserving the depth table and controller.
+The previous standalone scroll-video/WebCodecs integration modules remain in source for future footage integration but are **not mounted on the revised page**. Current browser tests cover the revised behavior, not that retired section.
 
-## Local demo features
+`npm run render:products` rebuilds the original transparent cutouts from 1000×1800 studio canvases. Requires the development server, Chromium and Pillow. Rendering fails rather than replacing a valid image with a blank output.
 
-Bag quantity and favorites persist in localStorage, with safe parsing and unavailable-storage fallbacks. Bag review is a demo, with no payment or order API. Newsletter interest saves locally only. Contact form downloads an enquiry draft and sends nothing. Dialogs trap focus, restore focus, close with Escape, and lock the background scroll.
+Bag and favorites persist locally. Bag review, newsletter interest and enquiry-draft download are explicit demos with no payment or message delivery.
 
-## Assets and limitations
-
-See [ASSET_REQUIREMENTS.md](ASSET_REQUIREMENTS.md). Original cutouts, generated stills and live procedural product geometry are included. The attached text describes an animation but does not supply a playable GIF, final portrait/hand footage, macro films, or a rigged human asset. No still has been passed off as animated human footage. Production-ready commerce, email delivery, formula/ingredient specifications, licensed cinematic footage, and final asset matching remain separate integrations.
-
-See [QA_REPORT.md](QA_REPORT.md) for verified checks and the precise limits of the supplied media.
+See [QA_REPORT.md](QA_REPORT.md), [ASSET_REQUIREMENTS.md](ASSET_REQUIREMENTS.md), and [ART_DIRECTION.md](ART_DIRECTION.md) for validation, provenance, limitations and concrete production upgrades.

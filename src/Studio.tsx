@@ -9,8 +9,8 @@ export default function Studio() {
       true,
     );
     renderer.setPixelRatio(1);
-    renderer.setSize(600, 1200);
-    camera.aspect = 0.5;
+    renderer.setSize(1000, 1800);
+    camera.aspect = 1000 / 1800;
     camera.position.set(0, 0.3, 6.3);
     camera.lookAt(0, 0.3, 0);
     camera.updateProjectionMatrix();
@@ -19,14 +19,17 @@ export default function Studio() {
       renderProduct: (i: number) => {
         if (product) scene.remove(product);
         product = makeProduct(i);
+        product.traverse((o) => {
+          if (o.name === "surface-dew") o.visible = false;
+        });
         scene.add(product);
         product.rotation.y = -0.15;
         if (i === 2 || i === 5) {
           camera.position.set(0, 0.55, 4.8);
           camera.lookAt(0, 0.1, 0);
         } else {
-          camera.position.set(0, 0.5, 5.1);
-          camera.lookAt(0, 0.5, 0);
+          camera.position.set(0, 0.25, 5.5);
+          camera.lookAt(0, 0.2, 0);
         }
         renderer.render(scene, camera);
         return canvas.current!.toDataURL("image/png");

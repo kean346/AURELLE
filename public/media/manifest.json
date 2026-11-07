@@ -1,7 +1,20 @@
 {
-  "hero": { "src": null, "poster": "/media/hero-woman-poster.webp" },
-  "story": { "src": null, "strategy": "seek", "fps": 24 },
-  "campaign": { "src": null },
-  "liquid": { "src": null },
-  "final": { "src": null }
+  "hero": {
+    "src": "/media/hero-portrait.mp4",
+    "poster": "/media/hero-portrait-poster.webp"
+  },
+  "story": {
+    "src": null,
+    "strategy": "seek",
+    "fps": 24
+  },
+  "campaign": {
+    "src": null
+  },
+  "liquid": {
+    "src": null
+  },
+  "final": {
+    "src": null
+  }
 }
