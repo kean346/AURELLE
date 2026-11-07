@@ -1,0 +1,39 @@
+{
+  "name": "aurelle",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "test:browser": "node tests/browser.mjs && node tests/resilience.mjs",
+    "test:fixtures": "mkdir -p artifacts && ffmpeg -y -hide_banner -loglevel error -f lavfi -i testsrc2=size=640x360:rate=24:duration=4 -c:v libx264 -g 1 -pix_fmt yuv420p -movflags +faststart artifacts/test-seek.mp4 && ffmpeg -y -hide_banner -loglevel error -f lavfi -i testsrc2=size=640x360:rate=24:duration=4 -c:v libx264 -g 240 -keyint_min 240 -sc_threshold 0 -pix_fmt yuv420p -movflags +faststart artifacts/test-single-gop.mp4",
+    "render:products": "node scripts/render-products.mjs && python scripts/trim-products.py",
+    "format:check": "prettier --check src tests scripts/*.mjs package.json tsconfig.json vite.config.ts index.html"
+  },
+  "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.2.0",
+    "@fontsource/dm-sans": "^5.2.0",
+    "gsap": "^3.13.0",
+    "mp4box": "^2.3.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "three": "^0.181.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.181.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "playwright": "^1.56.0",
+    "prettier": "^3.9.10",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.0"
+  },
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
+  }
+}

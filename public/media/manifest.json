@@ -1,0 +1,7 @@
+{
+  "hero": { "src": null, "poster": "/media/hero-woman-poster.webp" },
+  "story": { "src": null, "strategy": "seek", "fps": 24 },
+  "campaign": { "src": null },
+  "liquid": { "src": null },
+  "final": { "src": null }
+}
